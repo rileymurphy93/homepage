@@ -4,15 +4,14 @@ $homepage = "http://10.100.1.11:5555/learn/main.jsp"
 # Path to the prefs.js file of Firefox
 $prefsPath = "$env:APPDATA\Mozilla\Firefox\Profiles\*.default-release\prefs.js"
 
-# Replace the homepage URL in prefs.js
+#Get-Content $prefsPath
 
-if (Get-Content $prefsPath -Raw -ErrorAction -SilentlyContinue -ea 0 -contains "browser.startup.homepage" )
-{
-(Get-Content $prefsPath) | ForEach-Object {
-    $_ -replace 'user_pref\("browser.startup.homepage", ".*"\);', "user_pref(""browser.startup.homepage"", ""$homepage"");"
-} | Set-Content $prefsPath
+if (
+Select-String $prefsPath -Pattern '"browser.startup.homepage",'){
+    (Get-Content $prefsPath) | ForEach-Object {
+        $_ -replace 'user_pref\("browser.startup.homepage", ".*"\);', "user_pref(""browser.startup.homepage"", ""$homepage"");" 
+    } | Out-File $prefsPath
 }
-
-else {
-   Add-Content -Path $prefsPath -Value "user_pref("browser.startup.homepage", "http://10.100.1.11:5555/learn/main.jsp");" -Encoding UTF8
+Else {
+    Add-Content -Path $prefsPath -Value 'user_pref("browser.startup.homepage", "http://10.100.1.11:5555/learn/main.jsp");' -Encoding UTF8
 }
